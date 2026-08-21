@@ -1,5 +1,7 @@
 import bcrypt, { hash } from "bcrypt";
 import usermodel from "../model/user.model.js";
+import jwt from 'jsonwebtoken';
+
 
 export const alluser = async (req, res) => {
   try {
@@ -59,8 +61,10 @@ export const userlogin = async (req, res) => {
 
     const correctpass = await bcrypt.compare(password, isuser.password);
     if (!correctpass) {res.json({ message: "incorrect password" })};
-
-    return res.status(200).json({message: "Login successfully", isuser });
+    const payload = {id: isuser.id, email: isuser.email};
+    const token = jwt.sign(payload, "passhole");
+    const body = {username: isuser.username, email: isuser.email, status: isuser.status, token };
+    return res.status(200).json({message: "Login successfully", body });
   } catch (error) {
     return res.send(error.message);
   }
