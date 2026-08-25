@@ -21,20 +21,10 @@ export const getOneUserPost = async (req, res) => {
     }
 };
 
-export const createPost = async (req, res) => {
-    const token = req.headers.authorization;
-    if(!token) return res.send(500).json({message: "no token found"});
-    let jwtpayload;
-    jwt.verify(token, "passhole", (error, payload) => {
-        if(error){
-            return res.send(500).json({message: "token not veriefied or compelete"});
-        };
-
-        jwtpayload = payload;
-    });
+export const createPost = async (req, res) => {    
   const body = req.body;
   try {
-    const createNewPost = new postModel({ ...body, creatorid: jwtpayload.id });
+    const createNewPost = new postModel({ ...body, creatorid: req.userinfo.id });
     await createNewPost.save();
     return res.status(201).json({ message: "Post created successfully" });
   } catch (error) {

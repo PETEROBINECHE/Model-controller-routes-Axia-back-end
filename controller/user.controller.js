@@ -62,10 +62,10 @@ export const userlogin = async (req, res) => {
     const correctpass = await bcrypt.compare(password, isuser.password);
     if (!correctpass) {res.json({ message: "incorrect password" })};
     const payload = {id: isuser.id, email: isuser.email};
-    const token = jwt.sign(payload, "passhole");
+    const token = jwt.sign(payload, process.env.token_privite_code);
     const body = {username: isuser.username, email: isuser.email, status: isuser.status, token };
     return res.status(200).json({message: "Login successfully", body });
   } catch (error) {
-    return res.send(error.message);
+    return res.status(500).send(error.message);
   }
 };
