@@ -8,9 +8,8 @@ export const tokenathu = (req, res, next) => {
             if(error){
                 return res.status(401).json({message: "token not veriefied or compelete"});
             };
-    
-            req.userinfo = payload
-        });
+        req.userinfo = payload
+    });
 
     next()
 }

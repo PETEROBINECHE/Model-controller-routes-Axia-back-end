@@ -33,8 +33,7 @@ export const createPost = async (req, res) => {
 };
 
 export const updatePost = async (req, res) => {
-    const id = req.params.id;
-
+    const id = req.params.id;    
     try {
         const editpost = await postModel.findByIdAndUpdate(id, req.body);
         return res.status(200).json({ message: "Post updated successfully" });

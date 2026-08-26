@@ -6,9 +6,9 @@ import jwt from 'jsonwebtoken';
 export const alluser = async (req, res) => {
   try {
     const alluser = await usermodel.find();
-    res.json({ alluser });
+    res.status(200).json({ alluser });
   } catch (error) {
-    res.send(error.message);
+    return res.status(500).json(error.message);
   }
 };
 
@@ -18,7 +18,7 @@ export const userPost = async (req, res) => {
   try {
     //CHECK IF USER EXIST
     const isuers = await usermodel.findOne({ email: others.email });
-    if (isuers) return res.send("user already exist?");
+    if (isuers) return res.status(200).json({message: "user already exist?"});
     // CONTINUE WITH REGISTRATION.
     const user = new usermodel({ ...others, password: hashpass });
     const saveduser = await user.save();
@@ -44,7 +44,7 @@ export const userDelete = async (req, res) => {
   const id = req.params.id;
   try {
     const deleteone = await usermodel.findByIdAndDelete(id);
-    return res.json(deleteone);
+    return res.status(200).json(deleteone);
   } catch (error) {
     res.send(error.massage);
   }
@@ -54,10 +54,13 @@ export const userDelete = async (req, res) => {
 // user-login with findone()
 export const userlogin = async (req, res) => {
   const { password, email } = req.body;
+  if(!password || !email) {
+    return res.status(404).json({message: "input correct email and password"})
+  }
   try {
     const isuser = await usermodel.findOne({email});
     if (!isuser){
-      return res.json({ message: "email don't exist, register now" })};
+      return res.status(200).json({ message: "email don't exist, register now" })};
 
     const correctpass = await bcrypt.compare(password, isuser.password);
     if (!correctpass) {res.json({ message: "incorrect password" })};
