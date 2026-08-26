@@ -1,4 +1,5 @@
 import postModel from "../model/post.model.js";
+import jwt from "jsonwebtoken";
 
 export const getAllPost = async (req, res) => {
     try {
@@ -13,17 +14,17 @@ export const getAllPost = async (req, res) => {
 export const getOneUserPost = async (req, res) => {
     const creatorid = req.params.creatorid
     try {
-        const allPost = await postModel.find({creatorid});
-        return res.status(200).json({ message: "User post gotten successfully", allPost });
+        const userPost = await postModel.find({creatorid});
+        return res.status(200).json({ message: "User post gotten successfully", userPost });
     } catch (error) {
         return res.status(500).send(error.message)
     }
 };
 
-export const createPost = async (req, res) => {
-  const payload = req.body;
+export const createPost = async (req, res) => {    
+  const body = req.body;
   try {
-    const createNewPost = new postModel({ ...payload });
+    const createNewPost = new postModel({ ...body, creatorid: req.userinfo.id });
     await createNewPost.save();
     return res.status(201).json({ message: "Post created successfully" });
   } catch (error) {
@@ -32,8 +33,7 @@ export const createPost = async (req, res) => {
 };
 
 export const updatePost = async (req, res) => {
-    const id = req.params.id;
-
+    const id = req.params.id;    
     try {
         const editpost = await postModel.findByIdAndUpdate(id, req.body);
         return res.status(200).json({ message: "Post updated successfully" });
