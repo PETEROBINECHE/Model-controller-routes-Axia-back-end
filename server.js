@@ -2,6 +2,7 @@ import express from "express";
 import userrouter from "./router/user.routes.js";
 import productrouter from "./router/product.routes.js";
 import postroutes from "./router/post.routes.js"
+import errorhandler from "./middlewel/erroe.middlewel.js";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config()
@@ -22,6 +23,8 @@ app.use(express.json());
 app.use(userrouter);
 app.use(productrouter);
 app.use(postroutes);
+
+app.use(errorhandler);
 
 app.listen(PORT, () => {
   DBconnect()
