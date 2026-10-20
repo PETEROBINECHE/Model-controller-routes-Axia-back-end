@@ -1,6 +1,8 @@
 import bcrypt, { hash } from "bcrypt";
 import usermodel from "../model/user.model.js";
 import jwt from "jsonwebtoken";
+import upload from "../middlewel/multer.midwell.js";
+import uploadToCloudinary from "../middlewel/uploadToCloudinary.js"
 
 export const alluser = async (req, res, next) => {
   try {
@@ -11,15 +13,28 @@ export const alluser = async (req, res, next) => {
   }
 };
 
-export const userPost = async (req, res, next) => {
-  const { password, ...others } = req.body;
-  const hashpass = await bcrypt.hash(password, 10);
+export const userPost = [ upload.single("profilePic"), async (req, res, next) => {
   try {
+    if(!req.file){
+      return res.status(400).json({ message: "Profile picture is required" });
+    };
+  
+    const { password, profilePic, ...others } = req.body;
+    if(!password){
+      return res.status(409).json({ message: "password is required" });
+    };
+
     //CHECK IF USER EXIST
     const isuers = await usermodel.findOne({ email: others.email });
-    if (isuers) return res.status(200).json({ message: "user already exist?" });
+    if (isuers) return res.status(409).json({ message: "user already exist?" });
+
+    const hashpass = await bcrypt.hash(password, 10);
+
+    // const resultImage = await cloudinary.uploader.upload(req.file.path, {resource_type: "image"});
+    const resultImage = await uploadToCloudinary(req.file.buffer);
+    
     // CONTINUE WITH REGISTRATION.
-    const user = new usermodel({ ...others, password: hashpass });
+    const user = new usermodel({ ...others, password: hashpass, profilePic: `${resultImage.secure_url}` });
     const saveduser = await user.save();
     return res
       .status(201)
@@ -27,7 +42,7 @@ export const userPost = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
-};
+}];
 
 export const userput = async (req, res, next) => {
   const id = req.params.id;
